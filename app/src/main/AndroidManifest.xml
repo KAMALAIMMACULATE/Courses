@@ -3,7 +3,9 @@
     package="com.example.hello1">
 
     <application>
-        <activity android:name=".CoursesActivity"></activity>
+        <activity android:name=".progressActivity"></activity>
+        <activity android:name=".splashActivity" />
+        <activity android:name=".CoursesActivity" />
     </application>
 
 </manifest>

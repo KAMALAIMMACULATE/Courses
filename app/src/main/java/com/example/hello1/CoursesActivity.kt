@@ -10,7 +10,8 @@ class CoursesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_courses)
         var courseList = listOf<Course>(
-
+            fetchCourses()
+    }
             Course("1", "Kotlin", "kT542", "James", "Kotlin Intro"),
             Course("2", "Python", "py676", "Joyce", "Backend development training"),
             Course("3", "UI/UX Design", "UD445", "Wema", "UI/UX design"),
@@ -22,5 +23,34 @@ class CoursesActivity : AppCompatActivity() {
              Course("4", "Javascript", "JS 122", "Joy", "React intro")
         rvCourses.layoutManager = LinearLayoutManager(baseContext)
         rvCourses.adapter = CoursesAdapter(courseList)
+
+            fun fetchCourses() {
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(baseContext)
+                val accessToken = sharedPreferences.getString("ACCESS_TOKEN_KEY", "")
+
+                val apiClient = ApiClient.buildService(ApiInterface::class.java)
+                val coursesCall = apiClient.getCourses("Bearer " + accessToken)
+                coursesCall.enqueue(object : Callback<CoursesResponse> {
+                    override fun onFailure(call: Call<CoursesResponse>, t: Throwable) {
+                        Toast.makeText(baseContext, t.message, Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun onResponse(
+                        call: Call<CoursesResponse>,
+                        response: Response<CoursesResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            var courseList = response.body()?.courses as List<Course>
+                            var coursesAdapter = CoursesAdapter(courseList)
+                            rvCourses.layoutManager = LinearLayoutManager(baseContext)
+                            rvCourses.adapter = coursesAdapter
+                        } else {
+                            Toast.makeText(baseContext, response.errorBody().toString(), Toast.LENGTH_LONG)
+                                .show()
+                        }
+                    }
+                })
+            }
+    }
     }
 }
